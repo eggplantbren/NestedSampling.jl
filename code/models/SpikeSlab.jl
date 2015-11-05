@@ -34,3 +34,14 @@ function perturb!(particle::Particle)
 	return 0.0
 end
 
+@doc """
+Evaluate the log likelihood
+""" ->
+function log_likelihood(particle::Particle)
+	logL = 0.0
+	for(i in 1:length(particle.params))
+		logL += -0.5*particle.params[i]^2
+	end
+	return logL
+end
+

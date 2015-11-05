@@ -1,3 +1,7 @@
+# Use matplotlib for plotting
+using PyCall
+@pyimport matplotlib.pyplot as plt
+
 # Run Nested Sampling on the model imported from here
 include("models/SpikeSlab.jl")
 
@@ -18,9 +22,13 @@ steps = Int64(max_depth*mcmc_steps)
 sampler = Sampler(num_particles, mcmc_steps)
 initialise!(sampler)
 
-for(i in 1:steps)
+plt.hist(sampler.logl, 50)
+plt.show()
+
+## Do 'steps' iterations of NS
+#for(i in 1:steps)
+#	do_iteration!(sampler, i!=steps)
 
 
-
-end
+#end
 
