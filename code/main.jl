@@ -22,13 +22,10 @@ steps = Int64(max_depth*mcmc_steps)
 sampler = Sampler(num_particles, mcmc_steps)
 initialise!(sampler)
 
-plt.hist(sampler.logl, 50)
-plt.show()
-
-## Do 'steps' iterations of NS
-#for(i in 1:steps)
-#	do_iteration!(sampler, i!=steps)
+# Do 'steps' iterations of NS
+for(i in 1:steps)
+	println(do_iteration!(sampler, i!=steps))
 
 
-#end
+end
 

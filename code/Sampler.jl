@@ -46,17 +46,50 @@ function do_iteration!(sampler::Sampler, equilibrate::Bool=true)
 	# Find index of worst particle
 	worst = find_worst_particle(sampler::Sampler)
 
-	# Open the output file
+	# Write its information to the output file
 	if(sampler.iteration == 0)
 		f = open("sample_info.txt", "w")
 	else
 		f = open("sample_info.txt", "a")
 	end
 	f = open("sample_info.txt", "w")
-	close!(f)
+	write(f, string(sampler.iteration+1), " ", sampler.logl[worst])
+	close(f)
+
+	# Set likelihood threshold
+	sampler.logl_threshold = sampler.logl[worst]
+	if(!equilibrate)
+		return sampler.logl_threshold
+	end
+
+	# Clone a survivor
+	if(sampler.num_particles != 1)
+		which = rand(1:sampler.num_particles)
+		while(which == worst)
+			which = rand(1:sampler.num_particles)
+		end
+		sampler.particles[worst] = sampler.particles[which]
+		sampler.logl[worst] = sampler.logl[which]
+	end
+	which = worst
+
+	# Evolve
+	for(i in 1:sampler.mcmc_steps)
+		proposal = deepcopy(sampler.particles[which])
+		logH = perturb!(proposal)
+		if(logH > 0.0)
+			logH = 0.0
+		end
+		logl_proposal = log_likelihood(proposal)
+
+		if((rand() <= exp(logH)) && (logl_proposal > sampler.logl_threshold))
+			sampler.particles[which] = proposal
+			sampler.logl[which] = logl_proposal
+		end
+	end
 
 	sampler.iteration += 1
-	return nothing
+	return sampler.logl_threshold
 end
 
 @doc """

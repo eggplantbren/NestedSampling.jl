@@ -28,7 +28,7 @@ end
 Do a metropolis proposal. Return log(hastings factor for prior sampling)
 """ ->
 function perturb!(particle::Particle)
-	i = randint(len(particle.params))
+	i = rand(1:length(particle.params))
 	particle.params[i] += randh()
 	particle.params[i] = mod(particle.params[i] + 0.5, 1.0) - 0.5
 	return 0.0
