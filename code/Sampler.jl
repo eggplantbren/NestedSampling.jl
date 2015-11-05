@@ -42,8 +42,34 @@ end
 Find and save worst particle,
 then generate replacement.
 """ ->
-function do_iteration!(sampler::Sampler, equilibrate=true)
+function do_iteration!(sampler::Sampler, equilibrate::Bool=true)
+	# Find index of worst particle
+	worst = find_worst_particle(sampler::Sampler)
+
+	# Open the output file
+	if(sampler.iteration == 0)
+		f = open("sample_info.txt", "w")
+	else
+		f = open("sample_info.txt", "a")
+	end
+	f = open("sample_info.txt", "w")
+	close!(f)
+
 	sampler.iteration += 1
 	return nothing
+end
+
+@doc """
+Find the index of the worst particle.
+"""
+function find_worst_particle(sampler::Sampler)
+	# Find worst particle
+	worst = 1
+	for(i in 2:sampler.num_particles)
+		if(sampler.logl[i] < sampler.logl[worst])
+			worst = i
+		end
+	end
+	return worst
 end
 
