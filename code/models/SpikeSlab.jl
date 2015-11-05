@@ -20,7 +20,7 @@ end
 Generate params from the prior
 """ ->
 function from_prior!(particle::Particle)
-	particle.params = -0.5 + rand(len(particle.params))
+	particle.params = -0.5 + rand(length(particle.params))
 	return nothing
 end
 
