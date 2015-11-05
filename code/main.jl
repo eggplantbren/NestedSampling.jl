@@ -23,9 +23,24 @@ sampler = Sampler(num_particles, mcmc_steps)
 initialise!(sampler)
 
 # Do 'steps' iterations of NS
+# Storage for results
+steps = Int64(max_depth)*num_particles
+plot_skip = num_particles
+keep = Array(Float64, (steps, ))
+
+plt.ion()
 for(i in 1:steps)
-	println(do_iteration!(sampler, i!=steps))
+	keep[i] = do_iteration!(sampler)
 
-
+	if(rem(i, plot_skip) == 0)
+		plt.hold(false)
+		plt.plot(-(1:i)/num_particles, keep[1:i], "bo-", markersize=3)
+		plt.xlabel("\$\\ln(X)\$")
+		plt.ylabel("\$\\ln(L)\$")
+		plt.draw()
+	end
 end
+
+plt.ioff()
+plt.show()
 
