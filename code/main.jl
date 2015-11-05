@@ -1,7 +1,8 @@
-include("Sampler.jl")
-
 # Run Nested Sampling on the model imported from here
 include("models/SpikeSlab.jl")
+
+# Import sampler type
+include("Sampler.jl")
 
 # Tuning parameters
 num_particles = 100
