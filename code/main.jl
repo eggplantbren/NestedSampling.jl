@@ -51,6 +51,11 @@ for(i in 1:steps)
 		plt.title(string("\$\\ln(Z) = \$", signif(logZ, 6),
 					", \$H = \$", signif(H, 6), " nats"))
 
+		# Adaptive ylim (exclude bottom 5%)
+		logl_sorted = sort(keep[1:i, 2])
+		lower = logl_sorted[1 + Int64(i/20)]
+		plt.ylim([lower, logl_sorted[end] + 0.05*(logl_sorted[end] - lower)])
+
 		plt.subplot(2, 1, 2)
 		plt.plot(keep[1:i], exp(log_post - maximum(log_post)), "bo-", markersize=1)
 		plt.xlabel("\$\\ln(X)\$")
