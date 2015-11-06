@@ -47,3 +47,11 @@ function log_likelihood(particle::Particle)
 	return logsumexp([logL1, logL2 + log(100.0)])
 end
 
+@doc """
+Convert to string, for output to sample.txt
+"""
+import Base.string
+function string(particle::Particle)
+	return join([string(x, " ") for(x in particle.params)])
+end
+

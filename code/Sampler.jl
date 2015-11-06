@@ -49,16 +49,21 @@ function do_iteration!(sampler::Sampler)
 	# Find index of worst particle
 	worst = find_worst_particle(sampler::Sampler)
 
-	# Write its information to the output file
+	# Write its information to the output files
 	if(sampler.iteration == 1)
 		f = open("sample_info.txt", "w")
 		write(f, "# num_particles, iteration, log(X), log(L)\n")
+		f2 = open("sample.txt", "w")
+		write(f2, "# The samples themselves. Use log(X) from sample_info.txt as un-normalised prior weights.\n")
 	else
 		f = open("sample_info.txt", "a")
+		f2 = open("sample.txt", "a")
 	end
 	write(f, string(sampler.num_particles), " ", string(sampler.iteration), " ",
 			string(sampler.logx_threshold, " ", string(sampler.logl[worst]), "\n"))
 	close(f)
+	write(f2, string(string(sampler.particles[worst]), "\n"))
+	close(f2)
 
 	# Set likelihood threshold
 	sampler.logl_threshold = sampler.logl[worst]
