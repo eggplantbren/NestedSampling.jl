@@ -38,10 +38,12 @@ end
 Evaluate the log likelihood
 """ ->
 function log_likelihood(particle::Particle)
-	logL = 0.0::Float64
+	logL1 = 0.0
+	logL2 = 0.0
 	for(i in 1:length(particle.params))
-		logL += -0.5*particle.params[i]^2
+		logL1 += -0.5*log(2*pi*0.1^2) - 0.5*(particle.params[i]/0.1)^2
+		logL2 += -0.5*log(2*pi*0.01^2) - 0.5*(particle.params[i]/0.01)^2
 	end
-	return logL
+	return logsumexp([logL1, logL2 + log(100.0)])
 end
 

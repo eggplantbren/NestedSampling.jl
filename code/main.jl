@@ -13,7 +13,7 @@ num_particles = 100
 mcmc_steps = 1000
 
 # Depth in nats
-max_depth = 30.0
+max_depth = 100.0
 
 # Number of NS iterations
 steps = Int64(max_depth*mcmc_steps)
