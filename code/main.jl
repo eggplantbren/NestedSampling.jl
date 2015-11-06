@@ -13,7 +13,7 @@ num_particles = 100
 mcmc_steps = 1000
 
 # Depth in nats
-max_depth = 1000.0
+max_depth = 30.0
 
 # Number of NS iterations
 steps = Int64(max_depth*mcmc_steps)
@@ -34,7 +34,7 @@ for(i in 1:steps)
 
 	if(rem(i, plot_skip) == 0)
 		plt.hold(false)
-		plt.plot(-(1:i)/num_particles, keep[1:i], "bo-", markersize=3)
+		plt.plot(-(1:i)/num_particles, keep[1:i], "bo-", markersize=1)
 		plt.xlabel("\$\\ln(X)\$")
 		plt.ylabel("\$\\ln(L)\$")
 		plt.draw()

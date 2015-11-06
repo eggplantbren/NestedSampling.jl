@@ -38,7 +38,7 @@ end
 Evaluate the log likelihood
 """ ->
 function log_likelihood(particle::Particle)
-	logL = 0.0
+	logL = 0.0::Float64
 	for(i in 1:length(particle.params))
 		logL += -0.5*particle.params[i]^2
 	end
