@@ -97,7 +97,7 @@ function do_iteration!(sampler::Sampler)
 	end
 	println("Accepted ", accepted, "/", sampler.mcmc_steps, " MCMC steps.\n")
 
-	return sampler.logl_threshold
+	return (sampler.logx_threshold, sampler.logl_threshold)
 end
 
 @doc """

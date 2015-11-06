@@ -26,21 +26,41 @@ initialise!(sampler)
 # Storage for results
 steps = Int64(max_depth)*num_particles
 plot_skip = num_particles
-keep = Array(Float64, (steps, ))
+
+# Store logX, logL
+keep = Array(Float64, (steps, 2))
 
 plt.ion()
 for(i in 1:steps)
-	keep[i] = do_iteration!(sampler)
+	(keep[i, 1], keep[i, 2]) = do_iteration!(sampler)
 
 	if(rem(i, plot_skip) == 0)
+		# Prior weights
+		log_prior = keep[1:i, 1] - logsumexp(keep[1:i, 1])
+		# Unnormalised posterior weights
+		log_post = log_prior + keep[1:i, 2]
+		# log evidence and information
+		logZ = logsumexp(log_post)
+		post = exp(log_post - logZ)
+		H = sum(post.*(log_post - logZ - log_prior))
+
+		plt.subplot(2, 1, 1)
 		plt.hold(false)
-		plt.plot(-(1:i)/num_particles, keep[1:i], "bo-", markersize=1)
-		plt.xlabel("\$\\ln(X)\$")
+		plt.plot(keep[1:i, 1], keep[1:i, 2], "bo-", markersize=1)
 		plt.ylabel("\$\\ln(L)\$")
+		plt.title(string("\$\\ln(Z) = \$", signif(logZ, 6),
+					", \$H = \$", signif(H, 6), " nats"))
+
+		plt.subplot(2, 1, 2)
+		plt.plot(keep[1:i], exp(log_post - maximum(log_post)), "bo-", markersize=1)
+		plt.xlabel("\$\\ln(X)\$")
+		plt.ylabel("Relative posterior weights")
+
 		plt.draw()
 	end
 end
 
+println("Done!")
 plt.ioff()
 plt.show()
 
