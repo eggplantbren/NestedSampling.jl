@@ -43,12 +43,14 @@ for(i in 1:steps)
 		logZ = logsumexp(log_post)
 		post = exp(log_post - logZ)
 		H = sum(post.*(log_post - logZ - log_prior))
+		uncertainty = sqrt(H/num_particles)
 
 		plt.subplot(2, 1, 1)
 		plt.hold(false)
 		plt.plot(keep[1:i, 1], keep[1:i, 2], "bo-", markersize=1)
 		plt.ylabel("\$\\ln(L)\$")
-		plt.title(string("\$\\ln(Z) = \$", signif(logZ, 6),
+		plt.title(string("\$\\ln(Z) =\$ ", signif(logZ, 6),
+					" +- ", signif(uncertainty, 3),
 					", \$H = \$", signif(H, 6), " nats"))
 
 		# Adaptive ylim (exclude bottom 5%)
