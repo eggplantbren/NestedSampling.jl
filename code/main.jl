@@ -55,7 +55,7 @@ for(i in 1:steps)
 
 		# Adaptive ylim (exclude bottom 5%)
 		logl_sorted = sort(keep[1:i, 2])
-		lower = logl_sorted[1 + Int64(i/20)]
+		lower = logl_sorted[1 + Int64(floor(0.05*i))]
 		plt.ylim([lower, logl_sorted[end] + 0.05*(logl_sorted[end] - lower)])
 
 		plt.subplot(2, 1, 2)
