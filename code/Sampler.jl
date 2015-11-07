@@ -9,6 +9,7 @@ type Sampler
 	mcmc_steps::Int64
 	particles::Vector{Particle}
 	logl::Vector{Float64}
+	tiebreakers::Vector{Float64}
 
 	# Current iteration
 	iteration::Int64
@@ -16,6 +17,7 @@ type Sampler
 	# Current log likelihood threshold
 	logx_threshold::Float64
 	logl_threshold::Float64
+	tb_threshold::Float64
 end
 
 @doc """
@@ -26,7 +28,8 @@ function Sampler(num_particles::Int64, mcmc_steps::Int64)
 	@assert (num_particles >= 1) & (mcmc_steps >= 1)
 	return Sampler(num_particles, mcmc_steps,
 								Array(Particle, (num_particles, )),
-								zeros(num_particles), 0, 0.0, -Inf)
+								zeros(num_particles), zeros(num_particles),
+								0, 0.0, -Inf, 0.0)
 end
 
 @doc """
@@ -37,6 +40,7 @@ function initialise!(sampler::Sampler)
 		sampler.particles[i] = Particle()
 		from_prior!(sampler.particles[i])
 		sampler.logl[i] = log_likelihood(sampler.particles[i])
+		sampler.tiebreakers[i] = rand()
 	end
 	return nothing
 end
@@ -81,10 +85,7 @@ function do_iteration!(sampler::Sampler)
 		end
 		sampler.particles[worst] = deepcopy(sampler.particles[which])
 		sampler.logl[worst] = deepcopy(sampler.logl[which])
-	end
-	if(sampler.logl[worst] != log_likelihood(sampler.particles[worst]))
-		println("Eh 1 ", sampler.iteration)
-		exit()
+		sampler.tiebreakers[worst] = deepcopy(sampler.tiebreakers[which])
 	end
 
 	# Evolve
@@ -96,10 +97,15 @@ function do_iteration!(sampler::Sampler)
 			logH = 0.0
 		end
 		logl_proposal = log_likelihood(proposal)
+		tb_proposal = sampler.tiebreakers[worst] + randh()
+		tb_proposal = mod(tb_proposal, 1.0)
 
-		if((rand() <= exp(logH)) && (logl_proposal > sampler.logl_threshold))
+		if((rand() <= exp(logH)) && is_less_than(
+						(sampler.logl_threshold, sampler.tb_threshold),
+						(logl_proposal, tb_proposal)))
 			sampler.particles[worst] = proposal
 			sampler.logl[worst] = logl_proposal
+			sampler.tiebreakers[worst] = tb_proposal
 			accepted += 1
 		end
 	end
@@ -109,19 +115,33 @@ function do_iteration!(sampler::Sampler)
 end
 
 @doc """
+Compare based on likelihoods first. Use tiebreakers to break a tie
+""" ->
+function is_less_than(x::Tuple{Float64, Float64}, y::Tuple{Float64, Float64})
+	if(x[1] < y[1])
+		return true
+	end
+	if((x[1] == y[1]) && (x[2] < y[2]))
+		return true
+	end
+	return false
+end
+
+
+@doc """
 Find the index of the worst particle.
 """
 function find_worst_particle(sampler::Sampler)
 	# Find worst particle
 	worst = 1
 	for(i in 2:sampler.num_particles)
-		if(sampler.logl[i] < sampler.logl[worst])
+		if(is_less_than((sampler.logl[i], sampler.tiebreakers[i]),
+						(sampler.logl[worst], sampler.tiebreakers[worst])))
 			worst = i
 		end
 	end
 	return worst
 end
-
 
 
 @doc """
