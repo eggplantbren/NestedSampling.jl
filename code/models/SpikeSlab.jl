@@ -52,6 +52,6 @@ Convert to string, for output to sample.txt
 """
 import Base.string
 function string(particle::Particle)
-	return join([string(x, " ") for(x in particle.params)])
+	return join([string(signif(x, 6), " ") for(x in particle.params)])
 end
 
