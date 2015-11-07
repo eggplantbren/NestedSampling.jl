@@ -191,9 +191,9 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 	end
 
 	# Prior weights
-	log_prior = keep[1:i, 1] - logsumexp(keep[1:i, 1])
+	log_prior = keep[:, 1] - logsumexp(keep[:, 1])
 	# Unnormalised posterior weights
-	log_post = log_prior + keep[1:i, 2]
+	log_post = log_prior + keep[:, 2]
 	# log evidence and information
 	logZ = logsumexp(log_post)
 	post = exp(log_post - logZ)
