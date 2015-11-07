@@ -134,7 +134,7 @@ end
 
 @doc """
 Find the index of the worst particle.
-"""
+""" ->
 function find_worst_particle(sampler::Sampler)
 	# Find worst particle
 	worst = 1
@@ -147,10 +147,24 @@ function find_worst_particle(sampler::Sampler)
 	return worst
 end
 
+@doc """
+Calculate the log evidence, information, and posterior weights from the output of a run
+""" ->
+function calculate_logZ(logX::Vector{Float64}, logL::Vector{Float64})
+	# Prior weights
+	log_prior = logX - logsumexp(logX)
+	# Unnormalised posterior weights
+	log_post = log_prior + logL
+	# log evidence and information
+	logZ = logsumexp(log_post)
+	post = exp(log_post - logZ)
+	H = sum(post.*(log_post - logZ - log_prior))
+	return (logZ, H, log_post)
+end
 
 @doc """
 Do a Nested Sampling run.
-"""
+""" ->
 function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 												depth::Float64; plot=true,
 												verbose=true)
@@ -177,15 +191,8 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 		(keep[i, 1], keep[i, 2]) = do_iteration!(sampler, verbose)
 
 		if(plot && (rem(i, plot_skip) == 0))
-			# Prior weights
-			log_prior = keep[1:i, 1] - logsumexp(keep[1:i, 1])
-			# Unnormalised posterior weights
-			log_post = log_prior + keep[1:i, 2]
-			# log evidence and information
-			logZ = logsumexp(log_post)
-			post = exp(log_post - logZ)
-			H = sum(post.*(log_post - logZ - log_prior))
-			uncertainty = sqrt(H/num_particles)
+			(logZ, H, log_post) = calculate_logZ(keep[1:i, 1], keep[1:i, 2])
+			uncertainty = sqrt(H/sampler.num_particles)
 
 			plt.subplot(2, 1, 1)
 			plt.hold(false)
@@ -217,15 +224,6 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 		plt.show()
 	end
 
-	# Prior weights
-	log_prior = keep[:, 1] - logsumexp(keep[:, 1])
-	# Unnormalised posterior weights
-	log_post = log_prior + keep[:, 2]
-	# log evidence and information
-	logZ = logsumexp(log_post)
-	post = exp(log_post - logZ)
-	H = sum(post.*(log_post - logZ - log_prior))
-
-	return (logZ, H)
+	return calculate_logZ(keep[:,1], keep[:,2])
 end
 
