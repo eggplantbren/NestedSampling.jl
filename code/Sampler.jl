@@ -49,7 +49,7 @@ end
 Find and save worst particle,
 then generate replacement.
 """ ->
-function do_iteration!(sampler::Sampler)
+function do_iteration!(sampler::Sampler, verbose::Bool)
 	sampler.iteration += 1
 	sampler.logx_threshold = -sampler.iteration/sampler.num_particles
 
@@ -74,8 +74,10 @@ function do_iteration!(sampler::Sampler)
 
 	# Set likelihood threshold
 	sampler.logl_threshold = sampler.logl[worst]
-	println("Iteration ", sampler.iteration, ", log(X) = ",
+	if(verbose)
+		println("Iteration ", sampler.iteration, ", log(X) = ",
 				sampler.logx_threshold,	", log(L) = ", sampler.logl_threshold)
+	end
 
 	# Clone a survivor
 	if(sampler.num_particles != 1)
@@ -109,7 +111,9 @@ function do_iteration!(sampler::Sampler)
 			accepted += 1
 		end
 	end
-	println("Accepted ", accepted, "/", sampler.mcmc_steps, " MCMC steps.\n")
+	if(verbose)
+		println("Accepted ", accepted, "/", sampler.mcmc_steps, " MCMC steps.\n")
+	end
 
 	return (sampler.logx_threshold, sampler.logl_threshold)
 end
@@ -148,7 +152,8 @@ end
 Do a Nested Sampling run.
 """
 function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
-												depth::Float64; plot=false)
+												depth::Float64; plot=true,
+												verbose=true)
 
 	# Number of NS iterations
 	steps = Int64(max_depth*mcmc_steps)
@@ -169,7 +174,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 		plt.ion()
 	end
 	for(i in 1:steps)
-		(keep[i, 1], keep[i, 2]) = do_iteration!(sampler)
+		(keep[i, 1], keep[i, 2]) = do_iteration!(sampler, verbose)
 
 		if(plot && (rem(i, plot_skip) == 0))
 			# Prior weights
@@ -204,7 +209,9 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 		end
 	end
 
-	println("Done!")
+	if(verbose)
+		println("Done!")
+	end
 	if(plot)
 		plt.ioff()
 		plt.show()

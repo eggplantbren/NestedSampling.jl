@@ -10,5 +10,5 @@ max_depth = 100.0
 
 # Do an NS run
 include("Sampler.jl")
-do_nested_sampling(num_particles, mcmc_steps, max_depth, plot=true)
+do_nested_sampling(num_particles, mcmc_steps, max_depth)
 
