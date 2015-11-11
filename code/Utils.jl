@@ -19,6 +19,9 @@ log(exp(a) - exp(b))
 """ ->
 function logdiffexp(a::Float64, b::Float64)
 	@assert a > b
+	if(b == -Inf)
+		return a
+	end
 	return b + log(exp(a - b) - 1.)
 end
 
