@@ -159,7 +159,7 @@ function calculate_logZ(logX::Vector{Float64}, logL::Vector{Float64})
 	logZ = logsumexp(log_post)
 	post = exp(log_post - logZ)
 	H = sum(post.*(log_post - logZ - log_prior))
-	return (logZ, H, log_post)
+	return (logZ, H, post)
 end
 
 @doc """
@@ -216,6 +216,9 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 		end
 	end
 
+    results = calculate_logZ(keep[:,1], keep[:,2])
+    writedlm("posterior_weights.txt", results[3])
+
 	if(verbose)
 		println("Done!")
 	end
@@ -224,6 +227,5 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 		plt.show()
 	end
 
-	return calculate_logZ(keep[:,1], keep[:,2])
 end
 
