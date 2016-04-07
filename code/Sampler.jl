@@ -217,10 +217,14 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 	end
 
     results = calculate_logZ(keep[:,1], keep[:,2])
-    post = exp(results[3] - results[1])
+    log_post = results[3] - results[1]
+    post = exp(log_post)
+    max_post = maximum(post)
+    ESS = exp(-sum(post.*log_post))
     writedlm("posterior_weights.txt", post)
 
 	if(verbose)
+        println("Effective posterior sample size = ", ESS)
 		println("Done!")
 	end
 	if(plot)
