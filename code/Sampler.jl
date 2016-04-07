@@ -221,7 +221,22 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
     post = exp(log_post)
     max_post = maximum(post)
     ESS = exp(-sum(post.*log_post))
-    writedlm("posterior_weights.txt", post)
+    writedlm("weights.txt", post)
+
+    # Do resampling do create posterior_sample.txt
+    sample = readdlm("sample.txt")
+    posterior_sample = Array(Float64, (Int64(ceil(ESS)), size(sample)[2]))
+    for(i in 1:size(posterior_sample)[1])
+        which = 1
+        while(true)
+            which = rand(1:size(sample)[1])
+            if(rand() <= post[which]/max_post)
+                break
+            end
+        end
+        posterior_sample[i, :] = sample[which, :]
+    end
+    writedlm("posterior_sample.txt", posterior_sample)
 
 	if(verbose)
         println("Effective posterior sample size = ", ESS)
