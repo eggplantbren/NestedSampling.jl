@@ -184,9 +184,6 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 	# Store logX, logL
 	keep = Array(Float64, (steps, 2))
 
-	if(plot)
-		plt.ion()
-	end
 	for(i in 1:steps)
 		(keep[i, 1], keep[i, 2]) = do_iteration!(sampler, verbose)
 
@@ -212,7 +209,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 			plt.xlabel("\$\\ln(X)\$")
 			plt.ylabel("Relative posterior weights")
 
-			plt.draw()
+            plt.savefig("progress_plot.png", bbox_inches="tight")
 		end
 	end
 
@@ -243,7 +240,6 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 		println("Done!")
 	end
 	if(plot)
-		plt.ioff()
 		plt.show()
 	end
 
