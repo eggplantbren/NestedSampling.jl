@@ -189,7 +189,12 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 
 		if(plot && (rem(i, plot_skip) == 0))
 			(logZ, H, log_post) = calculate_logZ(keep[1:i, 1], keep[1:i, 2])
-			uncertainty = sqrt(H/sampler.num_particles)
+
+            uncertainty = NaN
+            try
+    			uncertainty = sqrt(H/sampler.num_particles)
+            catch
+            end
 
 			plt.subplot(2, 1, 1)
 			plt.hold(false)
