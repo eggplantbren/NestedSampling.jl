@@ -241,6 +241,9 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
     writedlm("posterior_sample.txt", posterior_sample)
 
 	if(verbose)
+        (logZ, H, log_post) = results
+        println("ln(Z) = ", signif(logZ, 12), " +- ", signif(H/sqrt(num_particles), 3))
+        println("H = ", signif(H, 12), " nats")
         println("Effective posterior sample size = ", ESS)
 		println("Done!")
 	end
