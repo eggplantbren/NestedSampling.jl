@@ -2,7 +2,11 @@
 Heavy tailed distribution used for proposals
 """ ->
 function randh()
-	return 10.0^(1.5 - 6.0*rand())*randn()
+	a = randn()
+	b = randn()
+	c = randn()
+	t = c/sqrt((a^2 + b^2)/2)
+	return 10.0^(1.5 - 3*t)*randn()
 end
 
 @doc """
