@@ -51,7 +51,12 @@ then generate replacement.
 """ ->
 function do_iteration!(sampler::Sampler, verbose::Bool)
 	sampler.iteration += 1
+
+    # Standard
 	sampler.logx_threshold = -sampler.iteration/sampler.num_particles
+
+    # Walter
+    # sampler.logx_threshold = sampler.iteration*log(1.0 - 1.0/sampler.num_particles)
 
 	# Find index of worst particle
 	worst = find_worst_particle(sampler::Sampler)
@@ -151,10 +156,18 @@ end
 Calculate the log evidence, information, and posterior weights from the output of a run
 """ ->
 function calculate_logZ(logX::Vector{Float64}, logL::Vector{Float64})
+    # Add a zero to the beginning of logX
+    logX2 = [0.0; logX]
+
 	# Prior weights
-	log_prior = logX - logsumexp(logX)
+	log_prior = Array(Float64, (length(logX), ))
+    for(i in 1:length(log_prior))
+        log_prior[i] = logdiffexp(logX2[i], logX2[i+1])
+    end
+
 	# Unnormalised posterior weights
 	log_post = log_prior + logL
+
 	# log evidence and information
 	logZ = logsumexp(log_post)
     post = exp(log_post - logZ)
@@ -242,7 +255,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 
 	if(verbose)
         (logZ, H, log_post) = results
-        println("ln(Z) = ", signif(logZ, 12), " +- ", signif(H/sqrt(num_particles), 3))
+        println("ln(Z) = ", signif(logZ, 12), " +- ", signif(sqrt(H/num_particles), 3))
         println("H = ", signif(H, 12), " nats")
         println("Effective posterior sample size = ", ESS)
 		println("Done!")

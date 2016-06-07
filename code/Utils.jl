@@ -23,6 +23,6 @@ log(exp(a) - exp(b))
 """ ->
 function logdiffexp(a::Float64, b::Float64)
 	@assert a > b
-	return b + log(exp(a - b) - 1.)
+	return b + log(exp(a - b) - 1.0)
 end
 
