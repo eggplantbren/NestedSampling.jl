@@ -263,6 +263,6 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 	if(plot)
 		plt.show()
 	end
-
+    return(results)
 end
 
