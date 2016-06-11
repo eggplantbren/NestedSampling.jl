@@ -42,7 +42,7 @@ function log_likelihood(particle::Particle)
 	logL2 = -length(particle.params)*0.5*log(2*pi*0.01^2)
 	for(i in 1:length(particle.params))
 		logL1 += -0.5*(particle.params[i]/0.1)^2
-		logL2 += -0.5*(particle.params[i]/0.01)^2
+		logL2 += -0.5*((particle.params[i] - 0.031)/0.01)^2
 	end
 	return logsumexp([logL1, logL2 + log(100.0)])
 end
