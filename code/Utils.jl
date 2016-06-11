@@ -2,11 +2,8 @@
 Heavy tailed distribution used for proposals
 """ ->
 function randh()
-	a = randn()
-	b = randn()
-	c = randn()
-	t = c/sqrt((a^2 + b^2)/2)
-	return 10.0^(1.5 - 3*t)*randn()
+	t = randn()/sqrt(-log(rand()))
+	return 10.0^(1.5 - 3*abs(t))*randn()
 end
 
 @doc """
