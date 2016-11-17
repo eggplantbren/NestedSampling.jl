@@ -36,7 +36,7 @@ end
 Generate all particles from the prior
 """ ->
 function initialise!(sampler::Sampler)
-	for(i in 1:sampler.num_particles)
+	for i in 1:sampler.num_particles
 		sampler.particles[i] = Particle()
 		from_prior!(sampler.particles[i])
 		sampler.logl[i] = log_likelihood(sampler.particles[i])
@@ -97,7 +97,7 @@ function do_iteration!(sampler::Sampler, verbose::Bool)
 
 	# Evolve
 	accepted = 0::Int64
-	for(i in 1:sampler.mcmc_steps)
+	for i in 1:sampler.mcmc_steps
 		proposal = deepcopy(sampler.particles[worst])
 		logH = perturb!(proposal)
 		if(logH > 0.0)
@@ -143,7 +143,7 @@ Find the index of the worst particle.
 function find_worst_particle(sampler::Sampler)
 	# Find worst particle
 	worst = 1
-	for(i in 2:sampler.num_particles)
+	for i in 2:sampler.num_particles
 		if(is_less_than((sampler.logl[i], sampler.tiebreakers[i]),
 						(sampler.logl[worst], sampler.tiebreakers[worst])))
 			worst = i
@@ -161,7 +161,7 @@ function calculate_logZ(logX::Vector{Float64}, logL::Vector{Float64})
 
 	# Prior weights
 	log_prior = Array(Float64, (length(logX), ))
-    for(i in 1:length(log_prior))
+    for i in 1:length(log_prior)
         log_prior[i] = logdiffexp(logX2[i], logX2[i+1])
     end
 
@@ -197,7 +197,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 	# Store logX, logL
 	keep = Array(Float64, (steps, 2))
 
-	for(i in 1:steps)
+	for i in 1:steps
 		(keep[i, 1], keep[i, 2]) = do_iteration!(sampler, verbose)
 
 		if(plot && (rem(i, plot_skip) == 0))
@@ -241,7 +241,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
     # Do resampling do create posterior_sample.txt
     sample = readdlm("sample.txt")
     posterior_sample = Array(Float64, (Int64(ceil(ESS)), size(sample)[2]))
-    for(i in 1:size(posterior_sample)[1])
+    for i in 1:size(posterior_sample)[1]
         which = 1
         while(true)
             which = rand(1:size(sample)[1])

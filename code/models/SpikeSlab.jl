@@ -40,7 +40,7 @@ Evaluate the log likelihood
 function log_likelihood(particle::Particle)
 	logL1 = -length(particle.params)*0.5*log(2*pi*0.1^2)
 	logL2 = -length(particle.params)*0.5*log(2*pi*0.01^2)
-	for(i in 1:length(particle.params))
+	for i in 1:length(particle.params)
 		logL1 += -0.5*(particle.params[i]/0.1)^2
 		logL2 += -0.5*((particle.params[i] - 0.031)/0.01)^2
 	end
@@ -52,6 +52,6 @@ Convert to string, for output to sample.txt
 """
 import Base.string
 function string(particle::Particle)
-	return join([string(signif(x, 6), " ") for(x in particle.params)])
+	return join([string(signif(x, 6), " ") for x in particle.params])
 end
 
