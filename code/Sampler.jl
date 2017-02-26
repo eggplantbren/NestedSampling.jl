@@ -210,7 +210,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
             end
 
 			plt.subplot(2, 1, 1)
-			plt.hold(false)
+            plt.cla()
 			plt.plot(keep[1:i, 1], keep[1:i, 2], "ko-", markersize=1)
 			plt.ylabel("\$\\ln(L)\$")
 			plt.title(string("\$\\ln(Z) =\$ ", signif(logZ, 6),
@@ -223,6 +223,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 			plt.ylim([lower, logl_sorted[end] + 0.05*(logl_sorted[end] - lower)])
 
 			plt.subplot(2, 1, 2)
+            plt.cla()
 			plt.plot(keep[1:i], exp(log_post - maximum(log_post)), "ko-", markersize=1)
 			plt.xlabel("\$\\ln(X)\$")
 			plt.ylabel("Relative posterior weights")
