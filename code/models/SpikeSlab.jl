@@ -1,43 +1,42 @@
 include("../Utils.jl")
 
-@doc """
+"""
 An object of this class represents a point in parameter space.
 There are functions defined to evaluate the log likelihood and
 move around.
-""" ->
-type Particle
+"""
+mutable struct Particle
 	params::Vector{Float64}
 end
 
-@doc """
+"""
 A constructor. Makes params have length 20
-""" ->
+"""
 function Particle()
-	return Particle(Array(Float64, (20, )))
+	return Particle(Vector{Float64}(undef, 20))
 end
 
-@doc """
+"""
 Generate params from the prior
-""" ->
+"""
 function from_prior!(particle::Particle)
-	particle.params = -0.5 + rand(length(particle.params))
-	return nothing
+	particle.params = -0.5 .+ rand(length(particle.params))
 end
 
-@doc """
+"""
 Do a metropolis proposal. Return log(hastings factor for prior sampling)
-""" ->
-function perturb!(particle::Particle)
+"""
+function perturb!(particle::Particle) :: Float64
 	i = rand(1:length(particle.params))
 	particle.params[i] += randh()
 	particle.params[i] = mod(particle.params[i] + 0.5, 1.0) - 0.5
 	return 0.0
 end
 
-@doc """
+"""
 Evaluate the log likelihood
-""" ->
-function log_likelihood(particle::Particle)
+"""
+function log_likelihood(particle::Particle) :: Float64
 	logL1 = -length(particle.params)*0.5*log(2*pi*0.1^2)
 	logL2 = -length(particle.params)*0.5*log(2*pi*0.01^2)
 	for i in 1:length(particle.params)
@@ -47,11 +46,12 @@ function log_likelihood(particle::Particle)
 	return logsumexp([logL1, logL2 + log(100.0)])
 end
 
-@doc """
+import Base.string
+
+"""
 Convert to string, for output to sample.txt
 """
-import Base.string
 function string(particle::Particle)
-	return join([string(signif(x, 6), " ") for x in particle.params])
+	return join([string(x, " ") for x in particle.params])
 end
 

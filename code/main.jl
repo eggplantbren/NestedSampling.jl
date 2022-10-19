@@ -1,4 +1,6 @@
 # Run Nested Sampling on the model imported from here
+include("Utils.jl")
+
 include("models/SpikeSlab.jl")
 
 # Tuning parameters

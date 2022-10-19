@@ -1,10 +1,8 @@
 using PyCall
 @pyimport matplotlib.pyplot as plt
 
-@doc """
-Sampler class
-""" ->
-type Sampler
+# Sampler class
+mutable struct Sampler
 	num_particles::Int64
 	mcmc_steps::Int64
 	particles::Vector{Particle}
@@ -20,21 +18,21 @@ type Sampler
 	tb_threshold::Float64
 end
 
-@doc """
+"""
 Constructor that only takes num_particles and mcmc_steps
 as input
-""" ->
+""" 
 function Sampler(num_particles::Int64, mcmc_steps::Int64)
 	@assert (num_particles >= 1) & (mcmc_steps >= 1)
 	return Sampler(num_particles, mcmc_steps,
-								Array(Particle, (num_particles, )),
+								Vector{Particle}(undef, num_particles),
 								zeros(num_particles), zeros(num_particles),
 								0, 0.0, -Inf, 0.0)
 end
 
-@doc """
+"""
 Generate all particles from the prior
-""" ->
+""" 
 function initialise!(sampler::Sampler)
 	for i in 1:sampler.num_particles
 		sampler.particles[i] = Particle()
@@ -45,10 +43,10 @@ function initialise!(sampler::Sampler)
 	return nothing
 end
 
-@doc """
+"""
 Find and save worst particle,
 then generate replacement.
-""" ->
+""" 
 function do_iteration!(sampler::Sampler, verbose::Bool)
 	sampler.iteration += 1
 
@@ -123,9 +121,9 @@ function do_iteration!(sampler::Sampler, verbose::Bool)
 	return (sampler.logx_threshold, sampler.logl_threshold)
 end
 
-@doc """
+"""
 Compare based on likelihoods first. Use tiebreakers to break a tie
-""" ->
+""" 
 function is_less_than(x::Tuple{Float64, Float64}, y::Tuple{Float64, Float64})
 	if(x[1] < y[1])
 		return true
@@ -137,9 +135,9 @@ function is_less_than(x::Tuple{Float64, Float64}, y::Tuple{Float64, Float64})
 end
 
 
-@doc """
+"""
 Find the index of the worst particle.
-""" ->
+""" 
 function find_worst_particle(sampler::Sampler)
 	# Find worst particle
 	worst = 1
@@ -152,15 +150,15 @@ function find_worst_particle(sampler::Sampler)
 	return worst
 end
 
-@doc """
+"""
 Calculate the log evidence, information, and posterior weights from the output of a run
-""" ->
+""" 
 function calculate_logZ(logX::Vector{Float64}, logL::Vector{Float64})
     # Add a zero to the beginning of logX
     logX2 = [0.0; logX]
 
 	# Prior weights
-	log_prior = Array(Float64, (length(logX), ))
+	log_prior = Vector{Float64}(undef, length(logX))
     for i in 1:length(log_prior)
         log_prior[i] = logdiffexp(logX2[i], logX2[i+1])
     end
@@ -170,14 +168,14 @@ function calculate_logZ(logX::Vector{Float64}, logL::Vector{Float64})
 
 	# log evidence and information
 	logZ = logsumexp(log_post)
-    post = exp(log_post - logZ)
-	H = sum(post.*(log_post - logZ - log_prior))
+    post = exp.(log_post .- logZ)
+	H = sum(post.*(log_post .- logZ .- log_prior))
 	return (logZ, H, log_post)
 end
 
-@doc """
+"""
 Do a Nested Sampling run.
-""" ->
+""" 
 function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 												depth::Float64; plot=true,
 												verbose=true)
@@ -195,7 +193,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 	plot_skip = num_particles
 
 	# Store logX, logL
-	keep = Array(Float64, (steps, 2))
+	keep = zeros(steps, 2)
 
 	for i in 1:steps
 		(keep[i, 1], keep[i, 2]) = do_iteration!(sampler, verbose)
@@ -213,9 +211,9 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
             plt.cla()
 			plt.plot(keep[1:i, 1], keep[1:i, 2], "ko-", markersize=1)
 			plt.ylabel("\$\\ln(L)\$")
-			plt.title(string("\$\\ln(Z) =\$ ", signif(logZ, 6),
-						" +- ", signif(uncertainty, 3),
-						", \$H = \$", signif(H, 6), " nats"))
+			plt.title(string("\$\\ln(Z) =\$ ", logZ,
+						" +- ", uncertainty,
+						", \$H = \$", H, " nats"))
 
 			# Adaptive ylim (exclude bottom 5%)
 			logl_sorted = sort(keep[1:i, 2])
@@ -224,7 +222,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 
 			plt.subplot(2, 1, 2)
             plt.cla()
-			plt.plot(keep[1:i], exp(log_post - maximum(log_post)), "ko-", markersize=1)
+			plt.plot(keep[1:i], exp.(log_post .- maximum(log_post)), "ko-", markersize=1)
 			plt.xlabel("\$\\ln(X)\$")
 			plt.ylabel("Relative posterior weights")
 
@@ -256,8 +254,8 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 
 	if(verbose)
         (logZ, H, log_post) = results
-        println("ln(Z) = ", signif(logZ, 12), " +- ", signif(sqrt(H/num_particles), 3))
-        println("H = ", signif(H, 12), " nats")
+        println("ln(Z) = ", logZ, " +- ", sqrt(H/num_particles))
+        println("H = ", H, " nats")
         println("Effective posterior sample size = ", ESS)
 		println("Done!")
 	end
