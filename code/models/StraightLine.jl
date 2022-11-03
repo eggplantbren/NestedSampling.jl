@@ -13,7 +13,7 @@ move around.
 """
 mutable struct Particle
     us     :: Vector{Float64}
-	params :: Vector{Float64}
+    params :: Vector{Float64}
 end
 
 """
@@ -26,7 +26,7 @@ N = size(data)[1]
 A constructor. Makes params have length num_params
 """
 function Particle()
-	return Particle(Vector{Float64}(undef, num_params),
+    return Particle(Vector{Float64}(undef, num_params),
                     Vector{Float64}(undef, num_params))
 end
 
@@ -35,25 +35,25 @@ Generate params from the prior
 """
 function from_prior!(particle::Particle)
     particle.us = rand(num_params)
-	particle.params = us_to_params(particle.us)
+    particle.params = us_to_params(particle.us)
 end
 
 """
 Do a metropolis proposal.
 """
 function perturb!(particle::Particle) :: Float64
-	i = rand(1:num_params)
-	particle.us[i] += randh()
-	particle.us[i] = mod(particle.us[i], 1.0)
+    i = rand(1:num_params)
+    particle.us[i] += randh()
+    particle.us[i] = mod(particle.us[i], 1.0)
     particle.params = us_to_params(particle.us)
-	return 0.0
+    return 0.0
 end
 
 """
 Convert to string, for output to sample.txt
 """
 function string(particle::Particle)
-	return join([string(x, " ") for x in particle.params])
+    return join([string(x, " ") for x in particle.params])
 end
 
 
