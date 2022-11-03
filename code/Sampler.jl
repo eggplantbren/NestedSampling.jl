@@ -66,7 +66,7 @@ function do_iteration!(sampler::Sampler, verbose::Bool)
 		f = open("sample_info.txt", "w")
 		write(f, "# num_particles, iteration, log(X), log(L)\n")
 		f2 = open("sample.txt", "w")
-		write(f2, "# The samples themselves. Use log(X) from sample_info.txt as un-normalised prior weights.\n")
+#		write(f2, "# The samples themselves. Use log(X) from sample_info.txt as un-normalised prior weights.\n")
 	else
 		f = open("sample_info.txt", "a")
 		f2 = open("sample.txt", "a")
@@ -245,7 +245,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
     for i in 1:size(posterior_sample)[1]
         which = 1
         while(true)
-            which = rand(1:size(post)[1])
+            which = rand(1:size(sample)[1])
             if(rand() <= post[which]/max_post)
                 break
             end
