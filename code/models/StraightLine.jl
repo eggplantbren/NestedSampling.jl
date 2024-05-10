@@ -42,10 +42,18 @@ end
 Do a metropolis proposal.
 """
 function perturb!(particle::Particle) :: Float64
-    i = rand(1:num_params)
-    particle.us[i] += randh()
-    particle.us[i] = mod(particle.us[i], 1.0)
-    particle.params = us_to_params(particle.us)
+
+    # Perturb more than one parameter at a time
+    reps = length(particle.us)^rand()
+    reps = Int64(floor(reps))
+
+    for rep in 1:reps
+        i = rand(1:num_params)
+        particle.us[i] += randh()
+        particle.us[i] = mod(particle.us[i], 1.0)
+        particle.params = us_to_params(particle.us)
+    end
+
     return 0.0
 end
 
