@@ -51,8 +51,8 @@ function perturb!(particle::Particle) :: Float64
         i = rand(1:num_params)
         particle.us[i] += randh()
         particle.us[i] = mod(particle.us[i], 1.0)
-        particle.params = us_to_params(particle.us)
     end
+    particle.params = us_to_params(particle.us)
 
     return 0.0
 end
