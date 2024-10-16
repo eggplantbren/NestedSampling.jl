@@ -1,7 +1,7 @@
 # Run Nested Sampling on the model imported from here
 include("Utils.jl")
-
 include("models/StraightLine.jl")
+include("Sampler.jl")
 
 # Tuning parameters
 num_particles = 100
@@ -12,6 +12,5 @@ max_depth = 100.0
 early_termination = true
 
 # Do an NS run
-include("Sampler.jl")
 do_nested_sampling(num_particles, mcmc_steps, max_depth, early_termination)
 
