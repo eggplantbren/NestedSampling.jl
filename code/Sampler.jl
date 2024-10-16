@@ -183,7 +183,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
                                                 verbose=true)
 
     # Number of NS iterations
-    steps = Int64(max_depth*mcmc_steps)
+    steps = Int64(depth*mcmc_steps)
 
     # Create the sampler
     sampler = Sampler(num_particles, mcmc_steps)
@@ -191,7 +191,7 @@ function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
 
     # Do 'steps' iterations of NS
     # Storage for results
-    steps = Int64(max_depth)*num_particles
+    steps = Int64(depth)*num_particles
     plot_skip = num_particles
 
     # Store logX, logL

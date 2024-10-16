@@ -8,9 +8,9 @@ num_particles = 100
 mcmc_steps = 1000
 
 # Depth in nats
-max_depth = 30.0
+depth = 30.0
 
 # Do an NS run
 include("Sampler.jl")
-do_nested_sampling(num_particles, mcmc_steps, max_depth)
+do_nested_sampling(num_particles, mcmc_steps, depth)
 
