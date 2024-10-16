@@ -179,26 +179,38 @@ end
 Do a Nested Sampling run.
 """ 
 function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
-                                                depth::Float64; plot=true,
+                                                depth::Float64,
+                                                early_termination=false,
+                                                plot=true,
                                                 verbose=true)
 
     # Number of NS iterations
-    steps = Int64(depth*num_particles)
+    steps = Int64(max_depth*num_particles)
 
     # Create the sampler
     sampler = Sampler(num_particles, mcmc_steps)
     initialise!(sampler)
 
-    # Do 'steps' iterations of NS
-    # Storage for results
-    steps = Int64(depth)*num_particles
     plot_skip = num_particles
 
     # Store logX, logL
     keep = zeros(steps, 2)
+    ln_p = -Inf # Propto posterior weight of the most recent dead particle
+    ln_p_max = -Inf
 
     for i in 1:steps
         (keep[i, 1], keep[i, 2]) = do_iteration!(sampler, verbose)
+        ln_p = keep[i, 1] + keep[i, 2]
+        if(ln_p > ln_p_max)
+            ln_p_max = ln_p
+        end
+
+        # Check for early termination if it is enabled
+        # and truncate the result array
+        if(early_termination && (ln_p < ln_p_max + log(1E-6)))
+            keep = keep[1:i, :]
+            break
+        end
 
         if(plot && (rem(i, plot_skip) == 0))
             (logZ, H, log_post) = calculate_logZ(keep[1:i, 1], keep[1:i, 2])
