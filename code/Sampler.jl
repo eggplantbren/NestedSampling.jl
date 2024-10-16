@@ -179,7 +179,7 @@ end
 Do a Nested Sampling run.
 """ 
 function do_nested_sampling(num_particles::Int64, mcmc_steps::Int64,
-                                                depth::Float64,
+                                                max_depth::Float64,
                                                 early_termination=false,
                                                 plot=true,
                                                 verbose=true)
